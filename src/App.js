@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import TypingBox from './components/visualkeyboard.component';
 import './App.css';
-
+import typingBackground from './images/image2.png';
 function App() {
   const [input, setInput] = useState('');
   const [value, setValue] = useState('hello world');
@@ -14,7 +14,7 @@ function App() {
   const [timerOn, setTimerOn] = useState(false);
 
 
-  
+
   const generateRandomString = useMemo(() => {
     const characters = 'asdfghjkl';
     const charactersLength = characters.length;
@@ -25,20 +25,20 @@ function App() {
       }
       return result;
     };
-    
+
   }, []);
 
   const generate = useCallback(() => {
     let temp = '';
-    for (let i = 0; i < 50; i++) {
-      temp += generateRandomString(5);
+    for (let i = 0; i < 150; i++) {
+      temp += generateRandomString(7);
       temp += ' ';
     }
     temp.trim();
     return temp;
   }, [generateRandomString]);
 
- 
+
 
 
   const handleInput = useCallback((e) => {
@@ -65,46 +65,53 @@ function App() {
         valueArray.push(<span key={i} className='incorrect'>{letter}</span>);
       }
     }
+    inputStringArrayRef.current = inputStringArray;
     setValue(<React.Fragment>{valueArray}</React.Fragment>);
     const accuracyValue = (inputStringArray.filter((letter, index) => letter === originalStringArray[index]).length / originalStringArray.length) * 100;
     setAccuracy(parseInt(accuracyValue));
+    if(inputValue === originalString){
+      const accuracyValue = (inputStringArray.filter((letter, index) => letter === originalStringArray[index]).length / originalStringArray.length) * 100;
+    setAccuracy(parseInt(accuracyValue));
+      alert(`Your accuracy is ${accuracyValue}%`);
+      window.location.reload(false);
+    }
   }, []);
 
-   
+
 
 
   useEffect(() => {
     const randomString = generate();
     originalStringRef.current = randomString;
     setValue(randomString);
-    
+
   }, [generate]);
   useEffect(() => {
-    
+
     const handleKeyDown = (e) => {
       // if e.key is a letter
-      if(e.keyCode >= 65 && e.keyCode <= 90) {
-      
-      setKeyCount((prevCount) => prevCount + 1);
-      
-      if(!timerOn){
-        setTimerOn(true);
-        setTimer(60);
+      if (e.keyCode >= 65 && e.keyCode <= 90) {
+
+        setKeyCount((prevCount) => prevCount + 1);
+
+        if (!timerOn) {
+          setTimerOn(true);
+          setTimer(60*5);
+        }
       }
-    }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-    
+
       window.removeEventListener('keydown', handleKeyDown);
-      
-      
+
+
     };
   }, [timerOn]);
 
   useEffect(() => {
-    if(timerOn && timer>0){
-      const intervalId=setInterval(() => {
+    if (timerOn && timer > 0) {
+      const intervalId = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
       return () => {
@@ -112,7 +119,7 @@ function App() {
       };
 
     }
-    else if( timerOn && timer===0 ){
+    else if (timerOn && timer === 0) {
       setTimerOn(false);
       setKeyCount(0);
       alert(`Your typing speed is ${keyCount} keys per minute`);
@@ -121,17 +128,49 @@ function App() {
   }, [timer, timerOn, keyCount]);
 
   return (
-    <div>
-      <h1>Typing Keys</h1>
+    <div style={{ backgroundImage: `url(${typingBackground})` ,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    height: '100vh',
+    width: '100vw',
+    overflow: 'auto',
+    position: 'relative',
+    
+    }}>
+      <div class="container2">
+        <div class="header">
+          <h1 class="title">Typing Test</h1>
+        </div>
+        <div class="tools">
+          <div class="accuracy">Accuracy: {accuracy}%</div>
+          <div class="keycount">Key count: {keyCount}</div>
+          <div class="timer">Timer: {timer}</div>
+        </div>
+      </div>
+      <div className='precaution'>
+        <p1 >
+        This is a typing test where you are given a passage one sentence at a time, 
+        and your goal is to accurately reproduce it using primarily the keys 
+        'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', and 'l'. The timer starts when you begin 
+        typing it. Best of luck!
+
+        </p1>
+      </div>
+      <div className='container'>
+        
+        <p class="mb-3 text-center text-gray-500 dark:text-gray-400">
+          {value}
+        </p>
+      </div>
+
       <TypingBox input={input} handleInput={handleInput} />
 
-      <div className='value'>{value}</div>
-      <div className='accuracy'>{accuracy}%</div>
-      <div className='tryagain'>
-        <button onClick={() => window.location.reload(false)}>Try Again</button>
-      </div>
-      <div className='keycount'>{keyCount}</div>
-      <div className='timer'>{timer}</div>
+      <button onClick={() => window.location.reload(false)} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      style={{position: "sticky", left: '80%',marginTop: '10px'}}
+      >
+        Try Again
+      </button>
     </div>
   );
 }
