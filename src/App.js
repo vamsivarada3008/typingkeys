@@ -14,7 +14,6 @@ function App() {
   const [timerOn, setTimerOn] = useState(false);
 
 
-
   const generateRandomString = useMemo(() => {
     const characters = 'asdfghjkl';
     const charactersLength = characters.length;
@@ -52,6 +51,8 @@ function App() {
     originalStringArray.push(...originalString);
     inputStringArray.push(...inputValue);
     const valueArray = [];
+    var correct = 0;
+    var incorrect = 0;
     for (let i = 0; i < originalStringArray.length; i++) {
       const letter = originalStringArray[i];
       const inputLetter = inputStringArray[i];
@@ -61,18 +62,21 @@ function App() {
         valueArray.push(letter);
       } else if (inputLetter === letter) {
         valueArray.push(<span key={i} className='correct'>{letter}</span>);
+        correct++;
       } else {
         valueArray.push(<span key={i} className='incorrect'>{letter}</span>);
+        incorrect++;
       }
     }
     inputStringArrayRef.current = inputStringArray;
     setValue(<React.Fragment>{valueArray}</React.Fragment>);
-    const accuracyValue = (inputStringArray.filter((letter, index) => letter === originalStringArray[index]).length / originalStringArray.length) * 100;
+    const accuracyValue = (correct / (correct + incorrect)) * 100;
     setAccuracy(parseInt(accuracyValue));
-    if(inputValue === originalString){
-      const accuracyValue = (inputStringArray.filter((letter, index) => letter === originalStringArray[index]).length / originalStringArray.length) * 100;
-    setAccuracy(parseInt(accuracyValue));
-      alert(`Your accuracy is ${accuracyValue}%`);
+    if(isNaN(accuracyValue)){
+      setAccuracy(0);
+    }
+    if(inputValue.length === originalString.length){
+      alert(`Your accuracy is ${parseInt(accuracyValue)}% `);
       window.location.reload(false);
     }
   }, []);
@@ -122,7 +126,7 @@ function App() {
     else if (timerOn && timer === 0) {
       setTimerOn(false);
       setKeyCount(0);
-      alert(`Your typing speed is ${keyCount} keys per minute`);
+      alert(`Your typing speed is ${keyCount} keys per 5 minutes, or ${parseInt(keyCount / 5)} keys per minute`);
       window.location.reload(false);
     }
   }, [timer, timerOn, keyCount]);
@@ -145,7 +149,7 @@ function App() {
         <div class="tools">
           <div class="accuracy">Accuracy: {accuracy}%</div>
           <div class="keycount">Key count: {keyCount}</div>
-          <div class="timer">Timer: {timer}</div>
+          <div class="timer">Timer: {timer}s</div>
         </div>
       </div>
       <div className='precaution'>
